@@ -380,63 +380,79 @@ export default function CenteredSwipeableBirthdayApp() {
                 <span className="tomato-badge-3d mb-2">📸 Hand Swipeable 3D Photos</span>
                 <h2 className="font-heading text-3xl font-bold gradient-text text-center">Jaya's Photo Scrapbook</h2>
                 <p className="text-slate-300 text-sm mt-1 text-center flex items-center justify-center gap-1.5">
-                  <Hand className="w-4 h-4 text-[#ffd700] animate-bounce" /> Swipe with hand left or right to switch photos!
+                  <Hand className="w-4 h-4 text-[#ffd700] animate-bounce" /> Swipe left or right • Tap to expand
                 </p>
               </div>
 
-              {/* HAND SWIPEABLE 3D SLIDER */}
-              <div className="relative w-full max-w-lg h-[460px] flex items-center justify-center mx-auto">
+              {/* PHONE-STYLE 9:16 PORTRAIT SLIDER */}
+              <div className="relative flex items-center justify-center mx-auto" style={{ width: '100%', maxWidth: '340px' }}>
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={photoSliderIdx}
                     drag="x"
                     dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.15}
                     onDragEnd={handlePhotoDragEnd}
-                    initial={{ opacity: 0, scale: 0.8, rotateY: 35 }}
-                    animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, rotateY: -35 }}
-                    transition={{ duration: 0.35 }}
-                    onClick={() => setActiveMedia({ type: 'image', src: IMAGES[photoSliderIdx].src, caption: IMAGES[photoSliderIdx].caption })}
-                    className="card-3d swipe-card-3d w-full h-full p-4 flex flex-col items-center border-2 border-[#ff4757]/40 shadow-2xl"
+                    initial={{ opacity: 0, x: 80, rotateY: 18 }}
+                    animate={{ opacity: 1, x: 0, rotateY: 0 }}
+                    exit={{ opacity: 0, x: -80, rotateY: -18 }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+                    className="swipe-card-3d photo-slide-card w-full"
+                    style={{ aspectRatio: '9/16', maxHeight: '520px' }}
                   >
-                    <div className="relative w-full h-80 rounded-2xl overflow-hidden">
+                    {/* Photo fills entire card */}
+                    <div
+                      className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl border-2 border-[#ff4757]/40"
+                      onClick={() => setActiveMedia({ type: 'image', src: IMAGES[photoSliderIdx].src, caption: IMAGES[photoSliderIdx].caption })}
+                    >
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img 
                         src={IMAGES[photoSliderIdx].src} 
                         alt="Photo Item" 
                         className="w-full h-full object-cover pointer-events-none" 
                       />
-                      <div className="absolute top-3 left-3 bg-[#05020a]/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-[#ffd700]">
+                      {/* Gradient overlay at bottom */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/10" />
+                      {/* Tag top-left */}
+                      <div className="absolute top-4 left-4 bg-[#05020a]/80 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-[#ffd700] border border-[#ffd700]/30">
                         {IMAGES[photoSliderIdx].tag}
                       </div>
-                    </div>
-                    <div className="p-4 text-center flex-grow flex items-center justify-center">
-                      <p className="text-sm font-medium text-slate-100 italic line-clamp-2 text-center">
-                        "{IMAGES[photoSliderIdx].caption}"
-                      </p>
+                      {/* Counter top-right */}
+                      <div className="absolute top-4 right-4 bg-[#05020a]/80 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-white">
+                        {photoSliderIdx + 1}/{IMAGES.length}
+                      </div>
+                      {/* Caption bottom */}
+                      <div className="absolute bottom-0 left-0 right-0 p-5 text-center">
+                        <p className="text-sm font-semibold text-white leading-relaxed drop-shadow-lg">
+                          &ldquo;{IMAGES[photoSliderIdx].caption}&rdquo;
+                        </p>
+                      </div>
                     </div>
                   </motion.div>
                 </AnimatePresence>
               </div>
 
-              {/* SLIDER INDICATOR CONTROLS */}
-              <div className="flex items-center justify-center gap-6 mt-6">
-                <button 
-                  onClick={() => setPhotoSliderIdx((photoSliderIdx - 1 + IMAGES.length) % IMAGES.length)}
-                  className="btn-3d-primary p-3 rounded-full"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <span className="text-sm font-bold text-slate-200">
-                  {photoSliderIdx + 1} / {IMAGES.length}
-                </span>
-                <button 
-                  onClick={() => setPhotoSliderIdx((photoSliderIdx + 1) % IMAGES.length)}
-                  className="btn-3d-primary p-3 rounded-full"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
+              {/* DOT INDICATORS */}
+              <div className="flex items-center justify-center gap-2 mt-5">
+                {IMAGES.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setPhotoSliderIdx(idx)}
+                    className="transition-all duration-300"
+                    style={{
+                      width: idx === photoSliderIdx ? '28px' : '10px',
+                      height: '10px',
+                      borderRadius: '5px',
+                      background: idx === photoSliderIdx
+                        ? 'linear-gradient(90deg, #ff4757, #ff758c)'
+                        : 'rgba(255,255,255,0.25)',
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ))}
               </div>
+              <p className="text-xs text-slate-400 mt-2">Tap photo to expand fullscreen ✨</p>
             </motion.div>
           )}
 
@@ -448,72 +464,89 @@ export default function CenteredSwipeableBirthdayApp() {
               className="py-4 flex flex-col items-center w-full text-center"
             >
               <div className="text-center mb-6">
-                <span className="tomato-badge-3d mb-2">🎥 Hand Swipeable 3D Video Reels</span>
+                <span className="tomato-badge-3d mb-2">🎥 Hand Swipeable Video Reels</span>
                 <h2 className="font-heading text-3xl font-bold gradient-text text-center">23 Cutie Video Moments</h2>
                 <p className="text-slate-300 text-sm mt-1 text-center flex items-center justify-center gap-1.5">
-                  <Hand className="w-4 h-4 text-[#ff758c] animate-bounce" /> Swipe with hand left or right to browse 23 videos!
+                  <Hand className="w-4 h-4 text-[#ff758c] animate-bounce" /> Swipe left or right • Tap to watch fullscreen
                 </p>
               </div>
 
-              {/* HAND SWIPEABLE 3D VIDEO SLIDE */}
-              <div className="relative w-full max-w-xl h-[480px] flex items-center justify-center mx-auto">
+              {/* 16:9 WIDESCREEN VIDEO SLIDE */}
+              <div className="relative w-full mx-auto" style={{ maxWidth: '560px' }}>
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={videoSliderIdx}
                     drag="x"
                     dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.15}
                     onDragEnd={handleVideoDragEnd}
-                    initial={{ opacity: 0, scale: 0.85, rotateY: 40 }}
-                    animate={{ opacity: 1, scale: 1, rotateY: 0 }}
-                    exit={{ opacity: 0, scale: 0.85, rotateY: -40 }}
-                    transition={{ duration: 0.35 }}
-                    onClick={() => setActiveMedia({ type: 'video', src: VIDEOS[videoSliderIdx].src, title: VIDEOS[videoSliderIdx].title, caption: VIDEOS[videoSliderIdx].quote })}
-                    className="card-3d swipe-card-3d w-full h-full p-4 flex flex-col items-center border-2 border-[#ff4757]/40 shadow-2xl"
+                    initial={{ opacity: 0, x: 80, scale: 0.96 }}
+                    animate={{ opacity: 1, x: 0, scale: 1 }}
+                    exit={{ opacity: 0, x: -80, scale: 0.96 }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+                    className="swipe-card-3d video-slide-card w-full"
                   >
-                    <div className="relative w-full h-80 bg-black rounded-2xl overflow-hidden">
+                    {/* 16:9 video container */}
+                    <div
+                      className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-[#ff4757]/40 bg-black"
+                      style={{ aspectRatio: '16/9' }}
+                      onClick={() => setActiveMedia({ type: 'video', src: VIDEOS[videoSliderIdx].src, title: VIDEOS[videoSliderIdx].title, caption: VIDEOS[videoSliderIdx].quote })}
+                    >
                       <video 
                         src={VIDEOS[videoSliderIdx].src} 
                         autoPlay 
                         muted 
                         loop 
+                        playsInline
                         className="w-full h-full object-cover pointer-events-none" 
                       />
-                      <div className="absolute top-3 left-3 bg-[#05020a]/80 px-3 py-1 rounded-full text-xs font-bold text-[#ff758c]">
+                      {/* Gradient overlays */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+                      {/* Tag top-left */}
+                      <div className="absolute top-3 left-3 bg-[#05020a]/85 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-[#ff758c] border border-[#ff758c]/30">
                         {VIDEOS[videoSliderIdx].tag}
                       </div>
-                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-                        <div className="w-14 h-14 rounded-full bg-white/25 backdrop-blur-md flex items-center justify-center border border-white/40">
-                          <Play className="w-7 h-7 text-white fill-white ml-0.5" />
+                      {/* Counter top-right */}
+                      <div className="absolute top-3 right-3 bg-[#05020a]/85 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-white">
+                        {videoSliderIdx + 1}/{VIDEOS.length}
+                      </div>
+                      {/* Play button center */}
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/50 shadow-lg">
+                          <Play className="w-7 h-7 text-white fill-white ml-1" />
                         </div>
                       </div>
-                    </div>
-
-                    <div className="p-4 text-center flex-grow flex flex-col justify-center items-center">
-                      <h4 className="font-bold text-white text-lg mb-1 text-center">{VIDEOS[videoSliderIdx].title}</h4>
-                      <p className="text-xs font-semibold text-slate-300 italic text-center">"{VIDEOS[videoSliderIdx].quote}"</p>
+                      {/* Title bottom */}
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
+                        <h4 className="font-bold text-white text-base drop-shadow-lg">{VIDEOS[videoSliderIdx].title}</h4>
+                        <p className="text-xs text-slate-200 italic mt-0.5 drop-shadow-lg">&ldquo;{VIDEOS[videoSliderIdx].quote}&rdquo;</p>
+                      </div>
                     </div>
                   </motion.div>
                 </AnimatePresence>
               </div>
 
-              {/* VIDEO SLIDER CONTROLS */}
-              <div className="flex items-center justify-center gap-6 mt-6">
-                <button 
-                  onClick={() => setVideoSliderIdx((videoSliderIdx - 1 + VIDEOS.length) % VIDEOS.length)}
-                  className="btn-3d-primary p-3 rounded-full"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <span className="text-sm font-bold text-slate-200">
-                  Video {videoSliderIdx + 1} of {VIDEOS.length}
-                </span>
-                <button 
-                  onClick={() => setVideoSliderIdx((videoSliderIdx + 1) % VIDEOS.length)}
-                  className="btn-3d-primary p-3 rounded-full"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
+              {/* DOT INDICATORS — show grouped dots for 23 videos */}
+              <div className="flex items-center justify-center gap-1.5 mt-5 flex-wrap max-w-xs mx-auto">
+                {VIDEOS.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setVideoSliderIdx(idx)}
+                    className="transition-all duration-300"
+                    style={{
+                      width: idx === videoSliderIdx ? '20px' : '7px',
+                      height: '7px',
+                      borderRadius: '4px',
+                      background: idx === videoSliderIdx
+                        ? 'linear-gradient(90deg, #ff4757, #ff758c)'
+                        : 'rgba(255,255,255,0.22)',
+                      border: 'none',
+                      cursor: 'pointer',
+                    }}
+                  />
+                ))}
               </div>
+              <p className="text-xs text-slate-400 mt-2">Tap video to watch fullscreen 🎬</p>
             </motion.div>
           )}
 
