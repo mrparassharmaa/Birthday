@@ -1,608 +1,559 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import confetti from 'canvas-confetti';
-import { 
-  Heart, Sparkles, Music, Play, Pause, Volume2, VolumeX, 
-  Image as ImageIcon, Video, Bot, Send, ChevronRight, ChevronLeft, X, 
-  Gift, Lock, Disc, Hand
+import {
+  Heart, Sparkles, Music, Play, Pause, Volume2, VolumeX,
+  Bot, Send, ChevronRight, ChevronLeft, X, Gift, Lock,
+  Disc, Hand, Image as ImageIcon, Video, Mail
 } from 'lucide-react';
 
-// Data for 4 Images
+/* ─── Data ─────────────────────────────────────────────── */
 const IMAGES = [
-  {
-    id: 1,
-    src: '/images/Snapchat-1257629011.jpg.jpeg',
-    caption: 'Tumhari chhoti si bindi aur tumhari aankhein... dono bahut sundar lagti hain! ✨',
-    tag: 'Eyes & Bindi Magic 👁️'
-  },
-  {
-    id: 2,
-    src: '/images/Snapchat-222109728.jpg.jpeg',
-    caption: 'Our official Cutie Lal Tamatar 🍅 looking effortlessly iconic!',
-    tag: 'Lal Tamatar Vibe 🍅'
-  },
-  {
-    id: 3,
-    src: '/images/Snapchat-283870123.jpg.jpeg',
-    caption: "Rule #1: You're NOT a brown girl 😂, you're gori, okay na!!! 😋",
-    tag: '100% Gori Cutie 💖'
-  },
-  {
-    id: 4,
-    src: '/images/Snapchat-389375502.jpg.jpeg',
-    caption: 'That million dollar smile that brightens up every single conversation 🥹✨',
-    tag: 'Pure Smiles 😊'
-  }
+  { id: 1, src: '/images/Snapchat-1257629011.jpg.jpeg', caption: 'Tumhari chhoti si bindi aur tumhari aankhein... dono bahut sundar lagti hain! ✨', tag: 'Eyes & Bindi Magic 👁️' },
+  { id: 2, src: '/images/Snapchat-222109728.jpg.jpeg',  caption: 'Our official Cutie Lal Tamatar 🍅 looking effortlessly iconic!',                  tag: 'Lal Tamatar Vibe 🍅' },
+  { id: 3, src: '/images/Snapchat-283870123.jpg.jpeg',  caption: "Rule #1: You're NOT a brown girl 😂, you're gori, okay na!!! 😋",                 tag: '100% Gori Cutie 💖' },
+  { id: 4, src: '/images/Snapchat-389375502.jpg.jpeg',  caption: 'That million dollar smile that brightens up every single conversation 🥹✨',         tag: 'Pure Smiles 😊' },
 ];
 
-// Data for 23 Videos
 const VIDEOS = [
-  { id: 1, src: '/videos/Snapchat-1012278807.mp4', title: 'Cutie Moment #1', tag: 'Lal Tamatar 🍅', quote: 'That smile is illegal in all 50 states! 🫣' },
-  { id: 2, src: '/videos/Snapchat-104018395.mp4', title: 'Cutie Moment #2', tag: 'Vibe Master ✨', quote: 'Effortlessly turning ordinary moments into magic.' },
-  { id: 3, src: '/videos/Snapchat-1396503234.mp4', title: 'Cutie Moment #3', tag: 'Main Character 👑', quote: 'Who allowed Jaya to be this pretty?' },
-  { id: 4, src: '/videos/Snapchat-1397558915.mp4', title: 'Cutie Moment #4', tag: 'Gori Vibe 😋', quote: 'Proving once again why you are gori & glowing!' },
-  { id: 5, src: '/videos/Snapchat-1455710810.mp4', title: 'Cutie Moment #5', tag: 'Shenanigans 🤪', quote: 'Conversations with you always leave a smile.' },
-  { id: 6, src: '/videos/Snapchat-1538511414.mp4', title: 'Cutie Moment #6', tag: 'Sparkle Eyes 👁️', quote: 'The eyes speak a whole love language.' },
-  { id: 7, src: '/videos/Snapchat-154661380.mp4', title: 'Cutie Moment #7', tag: 'Lal Tamatar 🍅', quote: 'Maximum cute levels unlocked today at 21!' },
-  { id: 8, src: '/videos/Snapchat-1588194826.mp4', title: 'Cutie Moment #8', tag: 'Best Memories 💖', quote: 'May this friendship always stay like this!' },
-  { id: 9, src: '/videos/Snapchat-1617110476.mp4', title: 'Cutie Moment #9', tag: 'Special Chapter 📖', quote: 'Chapter 21 is going to be your best yet.' },
-  { id: 10, src: '/videos/Snapchat-1803788998.mp4', title: 'Cutie Moment #10', tag: 'Pure Joy 🎉', quote: 'Khush rehna, smile karte rehna always!' },
-  { id: 11, src: '/videos/Snapchat-1940547402.mp4', title: 'Cutie Moment #11', tag: 'Cutie Jaya 🌸', quote: 'Truly deserving of all the best things.' },
-  { id: 12, src: '/videos/Snapchat-1961258862.mp4', title: 'Cutie Moment #12', tag: 'Star Aura ⭐', quote: 'Shining brighter than birthday candles!' },
-  { id: 13, src: '/videos/Snapchat-1986263687.mp4', title: 'Cutie Moment #13', tag: 'Random Laughs 😂', quote: 'Lots of laughs and random conversations!' },
-  { id: 14, src: '/videos/Snapchat-2122440969.mp4', title: 'Cutie Moment #14', tag: 'Bindi Royalty 👑', quote: 'Bindi on point, vibe on 100!' },
-  { id: 15, src: '/videos/Snapchat-237346826.mp4', title: 'Cutie Moment #15', tag: 'Cutie Vibe 🥹', quote: 'Easily the easiest person to talk to.' },
-  { id: 16, src: '/videos/Snapchat-256832633.mp4', title: 'Cutie Moment #16', tag: 'Lal Tamatar 🍅', quote: '100% fresh tomato energy!' },
-  { id: 17, src: '/videos/Snapchat-28160896.mp4', title: 'Cutie Moment #17', tag: 'Gori Queen 👑', quote: 'Always glowing, always gorgeous.' },
-  { id: 18, src: '/videos/Snapchat-428543530.mp4', title: 'Cutie Moment #18', tag: 'Birthday Girl 🎂', quote: '21 years of pure perfection!' },
-  { id: 19, src: '/videos/Snapchat-47553624.mp4', title: 'Cutie Moment #19', tag: 'Good Times 💖', quote: 'Making unforgettable memories together.' },
-  { id: 20, src: '/videos/Snapchat-604481272.mp4', title: 'Cutie Moment #20', tag: 'Star Power ✨', quote: 'May all your wishes come true.' },
-  { id: 21, src: '/videos/Snapchat-94430594.mp4', title: 'Cutie Moment #21', tag: '21st Special 🥳', quote: 'Finally 21! Enjoy your day to the fullest.' },
-  { id: 22, src: '/videos/Snapchat-966736310.mp4', title: 'Cutie Moment #22', tag: 'Aesthetic Queen 🎨', quote: 'Simply breathtaking every single time.' },
-  { id: 23, src: '/videos/Snapchat-99173546.mp4', title: 'Cutie Moment #23', tag: 'Love & Health ❤️', quote: 'Wishing you health, success, and endless love!' }
+  { id: 1,  src: '/videos/Snapchat-1012278807.mp4',  title: 'Cutie Moment #1',  tag: 'Lal Tamatar 🍅',    quote: 'That smile is illegal in all 50 states! 🫣' },
+  { id: 2,  src: '/videos/Snapchat-104018395.mp4',   title: 'Cutie Moment #2',  tag: 'Vibe Master ✨',    quote: 'Effortlessly turning ordinary moments into magic.' },
+  { id: 3,  src: '/videos/Snapchat-1396503234.mp4',  title: 'Cutie Moment #3',  tag: 'Main Character 👑', quote: 'Who allowed Jaya to be this pretty?' },
+  { id: 4,  src: '/videos/Snapchat-1397558915.mp4',  title: 'Cutie Moment #4',  tag: 'Gori Vibe 😋',     quote: 'Proving once again why you are gori & glowing!' },
+  { id: 5,  src: '/videos/Snapchat-1455710810.mp4',  title: 'Cutie Moment #5',  tag: 'Shenanigans 🤪',   quote: 'Conversations with you always leave a smile.' },
+  { id: 6,  src: '/videos/Snapchat-1538511414.mp4',  title: 'Cutie Moment #6',  tag: 'Sparkle Eyes 👁️', quote: 'The eyes speak a whole love language.' },
+  { id: 7,  src: '/videos/Snapchat-154661380.mp4',   title: 'Cutie Moment #7',  tag: 'Lal Tamatar 🍅',   quote: 'Maximum cute levels unlocked today at 21!' },
+  { id: 8,  src: '/videos/Snapchat-1588194826.mp4',  title: 'Cutie Moment #8',  tag: 'Best Memories 💖', quote: 'May this friendship always stay like this!' },
+  { id: 9,  src: '/videos/Snapchat-1617110476.mp4',  title: 'Cutie Moment #9',  tag: 'Special Chapter 📖',quote: 'Chapter 21 is going to be your best yet.' },
+  { id: 10, src: '/videos/Snapchat-1803788998.mp4',  title: 'Cutie Moment #10', tag: 'Pure Joy 🎉',       quote: 'Khush rehna, smile karte rehna always!' },
+  { id: 11, src: '/videos/Snapchat-1940547402.mp4',  title: 'Cutie Moment #11', tag: 'Cutie Jaya 🌸',    quote: 'Truly deserving of all the best things.' },
+  { id: 12, src: '/videos/Snapchat-1961258862.mp4',  title: 'Cutie Moment #12', tag: 'Star Aura ⭐',     quote: 'Shining brighter than birthday candles!' },
+  { id: 13, src: '/videos/Snapchat-1986263687.mp4',  title: 'Cutie Moment #13', tag: 'Random Laughs 😂', quote: 'Lots of laughs and random conversations!' },
+  { id: 14, src: '/videos/Snapchat-2122440969.mp4',  title: 'Cutie Moment #14', tag: 'Bindi Royalty 👑', quote: 'Bindi on point, vibe on 100!' },
+  { id: 15, src: '/videos/Snapchat-237346826.mp4',   title: 'Cutie Moment #15', tag: 'Cutie Vibe 🥹',    quote: 'Easily the easiest person to talk to.' },
+  { id: 16, src: '/videos/Snapchat-256832633.mp4',   title: 'Cutie Moment #16', tag: 'Lal Tamatar 🍅',   quote: '100% fresh tomato energy!' },
+  { id: 17, src: '/videos/Snapchat-28160896.mp4',    title: 'Cutie Moment #17', tag: 'Gori Queen 👑',    quote: 'Always glowing, always gorgeous.' },
+  { id: 18, src: '/videos/Snapchat-428543530.mp4',   title: 'Cutie Moment #18', tag: 'Birthday Girl 🎂', quote: '21 years of pure perfection!' },
+  { id: 19, src: '/videos/Snapchat-47553624.mp4',    title: 'Cutie Moment #19', tag: 'Good Times 💖',    quote: 'Making unforgettable memories together.' },
+  { id: 20, src: '/videos/Snapchat-604481272.mp4',   title: 'Cutie Moment #20', tag: 'Star Power ✨',    quote: 'May all your wishes come true.' },
+  { id: 21, src: '/videos/Snapchat-94430594.mp4',    title: 'Cutie Moment #21', tag: '21st Special 🥳',  quote: 'Finally 21! Enjoy your day to the fullest.' },
+  { id: 22, src: '/videos/Snapchat-966736310.mp4',   title: 'Cutie Moment #22', tag: 'Aesthetic Queen 🎨',quote: 'Simply breathtaking every single time.' },
+  { id: 23, src: '/videos/Snapchat-99173546.mp4',    title: 'Cutie Moment #23', tag: 'Love & Health ❤️', quote: 'Wishing you health, success, and endless love!' },
 ];
 
-// Playlist of Songs
-const MUSIC_PLAYLIST = [
-  { id: 'aarzu', title: 'Aarzu', artist: 'Noor Khan, madhurxo', type: 'local', src: '/music/aarzu.m4a' },
-  { id: 'blacksuit', title: 'Black Suit', artist: 'Preet Harpal ft. Fateh Doe', type: 'yt', ytId: 'Lp11-N1N64g' },
-  { id: 'bawli', title: 'Bawli', artist: 'Suyash & Danny', type: 'yt', ytId: 'hp6Shc6wzRo' },
-  { id: 'koyal', title: 'Koyal Si Baani', artist: 'Bigmoney & Laath Saab', type: 'yt', ytId: 'L_L84TjY_iA' },
-  { id: 'you', title: 'You', artist: 'Karan Aujla & Ikky', type: 'yt', ytId: '1F7f1u8P5n4' }
+const PLAYLIST = [
+  { id: 'aarzu',    title: 'Aarzu',           artist: 'Noor Khan, madhurxo',          type: 'local', src: '/music/aarzu.m4a' },
+  { id: 'blacksuit',title: 'Black Suit',      artist: 'Preet Harpal ft. Fateh Doe',  type: 'yt',    ytId: 'Lp11-N1N64g' },
+  { id: 'bawli',    title: 'Bawli',           artist: 'Suyash & Danny',              type: 'yt',    ytId: 'hp6Shc6wzRo' },
+  { id: 'koyal',    title: 'Koyal Si Baani',  artist: 'Bigmoney & Laath Saab',       type: 'yt',    ytId: 'L_L84TjY_iA' },
+  { id: 'you',      title: 'You',             artist: 'Karan Aujla & Ikky',          type: 'yt',    ytId: '1F7f1u8P5n4' },
 ];
 
-export default function CenteredSwipeableBirthdayApp() {
-  const [hasEntered, setHasEntered] = useState(false);
-  const [activeTab, setActiveTab] = useState<'letter' | 'photos' | 'videos' | 'music' | 'ai'>('letter');
-  const [isLetterUnfolded, setIsLetterUnfolded] = useState(false);
+type Tab = 'letter' | 'photos' | 'videos' | 'music' | 'ai';
 
-  // Audio Engine State
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+/* ─── Dot Indicator ─────────────────────────────────────── */
+function Dots({ total, current, onSelect, small = false }: { total: number; current: number; onSelect: (i: number) => void; small?: boolean }) {
+  return (
+    <div className="dots">
+      {Array.from({ length: total }).map((_, i) => (
+        <button
+          key={i}
+          onClick={() => onSelect(i)}
+          className={`dot ${i === current ? 'active' : 'inactive'}`}
+          style={small ? { height: '6px' } : {}}
+          aria-label={`Slide ${i + 1}`}
+        />
+      ))}
+    </div>
+  );
+}
 
-  // Slider indices
-  const [photoSliderIdx, setPhotoSliderIdx] = useState(0);
-  const [videoSliderIdx, setVideoSliderIdx] = useState(0);
-
-  // Lightbox
-  const [activeMedia, setActiveMedia] = useState<{ type: 'image' | 'video'; src: string; caption?: string; title?: string } | null>(null);
-
-  // AI Chat State
-  const [aiChat, setAiChat] = useState<Array<{ sender: 'user' | 'bot'; text: string }>>([
-    { sender: 'bot', text: 'Namaste Jaya! I am your 21st Birthday Holographic AI Hype Bot 🤖✨. Tap a prompt below or ask me anything!' }
+/* ─── Main App ──────────────────────────────────────────── */
+export default function BirthdayApp() {
+  const [entered, setEntered]           = useState(false);
+  const [tab, setTab]                   = useState<Tab>('letter');
+  const [letterOpen, setLetterOpen]     = useState(false);
+  const [photoIdx, setPhotoIdx]         = useState(0);
+  const [videoIdx, setVideoIdx]         = useState(0);
+  const [trackIdx, setTrackIdx]         = useState(0);
+  const [playing, setPlaying]           = useState(false);
+  const [muted, setMuted]               = useState(false);
+  const [lightbox, setLightbox]         = useState<{ type: 'image' | 'video'; src: string; caption?: string; title?: string } | null>(null);
+  const [aiChat, setAiChat]             = useState<Array<{ from: 'user' | 'bot'; text: string }>>([
+    { from: 'bot', text: 'Namaste Jaya! 🤖✨ I\'m your 21st Birthday AI Hype Bot. Tap a prompt or ask me anything!' }
   ]);
-  const [aiInput, setAiInput] = useState('');
-  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiInput, setAiInput]           = useState('');
+  const [aiLoading, setAiLoading]       = useState(false);
 
-  const currentTrack = MUSIC_PLAYLIST[currentTrackIndex];
+  const audioRef  = useRef<HTMLAudioElement | null>(null);
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const track = PLAYLIST[trackIdx];
 
-  // Confetti burst
-  const triggerConfetti = () => {
-    confetti({
-      particleCount: 120,
-      spread: 80,
-      origin: { y: 0.6 }
-    });
-  };
+  // Scroll AI chat to bottom
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [aiChat]);
 
-  // Entrance action
+  /* ── Confetti ── */
+  const boom = () => confetti({ particleCount: 140, spread: 80, origin: { y: 0.55 } });
+
+  /* ── Enter ── */
   const handleEnter = () => {
-    setHasEntered(true);
-    triggerConfetti();
-    if (audioRef.current) {
-      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
-    }
+    setEntered(true);
+    boom();
+    audioRef.current?.play().then(() => setPlaying(true)).catch(() => {});
   };
 
-  // Playlist Navigation
-  const playTrackAtIndex = (index: number) => {
-    setCurrentTrackIndex(index);
-    const track = MUSIC_PLAYLIST[index];
-    if (track.type === 'local' && track.src && audioRef.current) {
-      audioRef.current.src = track.src;
-      audioRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+  /* ── Track ── */
+  const playAt = (i: number) => {
+    setTrackIdx(i);
+    const t = PLAYLIST[i];
+    if (t.type === 'local' && t.src && audioRef.current) {
+      audioRef.current.src = t.src;
+      audioRef.current.play().then(() => setPlaying(true)).catch(() => {});
     } else {
       if (audioRef.current) audioRef.current.pause();
-      setIsPlaying(true);
+      setPlaying(true);
     }
   };
+  const nextTrack = () => playAt((trackIdx + 1) % PLAYLIST.length);
+  const prevTrack = () => playAt((trackIdx - 1 + PLAYLIST.length) % PLAYLIST.length);
 
-  const nextTrack = () => {
-    const nextIdx = (currentTrackIndex + 1) % MUSIC_PLAYLIST.length;
-    playTrackAtIndex(nextIdx);
+  /* ── Swipe ── */
+  const onPhotoDrag = (_: unknown, info: PanInfo) => {
+    if (Math.abs(info.offset.x) < 40) return;
+    if (info.offset.x < 0) setPhotoIdx(p => (p + 1) % IMAGES.length);
+    else setPhotoIdx(p => (p - 1 + IMAGES.length) % IMAGES.length);
+  };
+  const onVideoDrag = (_: unknown, info: PanInfo) => {
+    if (Math.abs(info.offset.x) < 40) return;
+    if (info.offset.x < 0) setVideoIdx(p => (p + 1) % VIDEOS.length);
+    else setVideoIdx(p => (p - 1 + VIDEOS.length) % VIDEOS.length);
   };
 
-  const prevTrack = () => {
-    const prevIdx = (currentTrackIndex - 1 + MUSIC_PLAYLIST.length) % MUSIC_PLAYLIST.length;
-    playTrackAtIndex(prevIdx);
-  };
-
-  // Hand Swipe Drag End Handlers for Photo & Video Sliders
-  const handlePhotoDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const swipeThreshold = 50;
-    if (info.offset.x < -swipeThreshold) {
-      // Swiped Left -> Next Photo
-      setPhotoSliderIdx((photoSliderIdx + 1) % IMAGES.length);
-    } else if (info.offset.x > swipeThreshold) {
-      // Swiped Right -> Prev Photo
-      setPhotoSliderIdx((photoSliderIdx - 1 + IMAGES.length) % IMAGES.length);
-    }
-  };
-
-  const handleVideoDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const swipeThreshold = 50;
-    if (info.offset.x < -swipeThreshold) {
-      // Swiped Left -> Next Video
-      setVideoSliderIdx((videoSliderIdx + 1) % VIDEOS.length);
-    } else if (info.offset.x > swipeThreshold) {
-      // Swiped Right -> Prev Video
-      setVideoSliderIdx((videoSliderIdx - 1 + VIDEOS.length) % VIDEOS.length);
-    }
-  };
-
-  // AI Response Fetch
-  const fetchAiCompliment = async (category?: string, promptText?: string) => {
-    const userMessage = promptText || (category ? `Tell me something about ${category}!` : 'Hypeme up!');
-    setAiChat(prev => [...prev, { sender: 'user', text: userMessage }]);
-    setIsAiLoading(true);
-
+  /* ── AI ── */
+  const askAi = async (category?: string, custom?: string) => {
+    const msg = custom || (category ? `Tell me something about ${category}!` : 'Hype me up!');
+    setAiChat(p => [...p, { from: 'user', text: msg }]);
+    setAiLoading(true);
     try {
       const res = await fetch('/api/compliment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category, customPrompt: promptText })
+        body: JSON.stringify({ category, customPrompt: custom }),
       });
       const data = await res.json();
-      setAiChat(prev => [...prev, { sender: 'bot', text: data.compliment }]);
+      setAiChat(p => [...p, { from: 'bot', text: data.compliment }]);
     } catch {
-      setAiChat(prev => [...prev, { sender: 'bot', text: "Jaya, you're absolute perfection! Happy 21st Birthday! 🎉❤️" }]);
+      setAiChat(p => [...p, { from: 'bot', text: "Jaya, you're absolute perfection! Happy 21st! 🎉❤️" }]);
     } finally {
-      setIsAiLoading(false);
+      setAiLoading(false);
     }
   };
 
-  return (
-    <div className="min-h-screen relative overflow-hidden pb-28 text-center flex flex-col items-center justify-between">
-      {/* Background Audio */}
-      <audio 
-        ref={audioRef} 
-        src="/music/aarzu.m4a" 
-        muted={isMuted}
-        onEnded={nextTrack}
-      />
+  /* ─── NAV TABS ─── */
+  const TABS: { key: Tab; label: string; emoji: string }[] = [
+    { key: 'letter', label: 'Letter',  emoji: '💌' },
+    { key: 'photos', label: 'Photos',  emoji: '📸' },
+    { key: 'videos', label: 'Videos',  emoji: '🎥' },
+    { key: 'music',  label: 'Music',   emoji: '🎶' },
+    { key: 'ai',     label: 'AI Bot',  emoji: '🤖' },
+  ];
 
-      {/* 1. CENTERED 3D OPENING MODAL */}
-      {!hasEntered && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#05020a]/95 backdrop-blur-2xl">
-          <motion.div 
-            initial={{ scale: 0.85, opacity: 0, rotateX: 15 }}
-            animate={{ scale: 1, opacity: 1, rotateX: 0 }}
-            transition={{ type: "spring", stiffness: 110, damping: 14 }}
-            className="card-3d max-w-lg w-full p-8 sm:p-10 text-center relative border-2 border-[#ff4757]/40 shadow-2xl flex flex-col items-center justify-center"
+  /* ════════════════════════════════════════════════ */
+  return (
+    <>
+      {/* Background Audio */}
+      <audio ref={audioRef} src="/music/aarzu.m4a" muted={muted} onEnded={nextTrack} />
+
+      {/* ── OPENING SCREEN ── */}
+      <AnimatePresence>
+        {!entered && (
+          <motion.div
+            className="opening-screen"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.05 }}
+            transition={{ duration: 0.5 }}
           >
-            {/* BADGE: Only Jaya's eye can see 🔒✨ */}
-            <div className="tomato-badge-3d mb-6 flex items-center justify-center gap-2">
-              <Lock className="w-4 h-4 text-[#ffd700]" /> Only Jaya's eye can see 🔒✨
+            {/* Stars bg */}
+            <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+              {Array.from({ length: 30 }).map((_, i) => (
+                <motion.div
+                  key={i}
+                  style={{
+                    position: 'absolute',
+                    borderRadius: '50%',
+                    background: 'white',
+                    width: Math.random() * 3 + 1,
+                    height: Math.random() * 3 + 1,
+                    top: `${Math.random() * 100}%`,
+                    left: `${Math.random() * 100}%`,
+                  }}
+                  animate={{ opacity: [0.2, 1, 0.2] }}
+                  transition={{ duration: 2 + Math.random() * 3, repeat: Infinity, delay: Math.random() * 2 }}
+                />
+              ))}
             </div>
 
-            <h1 className="font-heading text-4xl sm:text-5xl font-extrabold mb-4 gradient-text text-center">
-              Happy 21st Birthday, Jaya! 🎉❤️
-            </h1>
-
-            {/* LOVABLE DESCRIPTION */}
-            <p className="text-slate-200 text-base sm:text-lg mb-8 leading-relaxed font-medium text-center">
-              A magical space built with all my heart, dedicated to the prettiest eyes, the cutest bindi, and our adorable Cutie Lal Tamatar! 🥹🍅💖
-            </p>
-
-            <button 
-              onClick={handleEnter}
-              className="btn-3d-primary text-xl justify-center w-full shadow-2xl"
+            {/* Lock badge */}
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              style={{ marginBottom: 28 }}
             >
-              <Gift className="w-6 h-6 animate-bounce" /> Open Jaya's Secret World 💖
-            </button>
-            
-            <p className="text-xs text-slate-400 mt-4 text-center">
-              🎵 Tap to start continuous background music!
-            </p>
-          </motion.div>
-        </div>
-      )}
+              <span className="badge">
+                <Lock style={{ width: 12, height: 12 }} />
+                Only Jaya&apos;s eyes can see 🔒✨
+              </span>
+            </motion.div>
 
-      {/* 2. MAIN APP CONTENT DASHBOARD */}
-      {hasEntered && (
-        <div className="max-w-4xl w-full mx-auto px-4 py-6 text-center flex flex-col items-center">
-          
-          {/* HEADER NAV BAR */}
-          <header className="glass-panel-3d p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 sticky top-4 z-40 w-full text-center">
-            <div className="flex items-center justify-center gap-3">
-              <span className="text-3xl animate-bounce">🍅</span>
-              <div className="text-center md:text-left">
-                <h2 className="font-heading text-xl font-bold gradient-text">Jaya's 21st Birthday</h2>
-                <p className="text-xs text-slate-300">Cutie Lal Tamatar • Gori & Beautiful ✨</p>
+            {/* Title */}
+            <motion.h1
+              className="font-head grad-text"
+              style={{ fontSize: 'clamp(2rem, 9vw, 3rem)', fontWeight: 800, marginBottom: 16, lineHeight: 1.2 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2, type: 'spring', stiffness: 120 }}
+            >
+              Happy 21st Birthday, Jaya! 🎉❤️
+            </motion.h1>
+
+            {/* Subtitle */}
+            <motion.p
+              style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: 1.7, marginBottom: 40, maxWidth: 320 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.35 }}
+            >
+              A magical space built with all my heart, dedicated to the prettiest eyes, the cutest bindi, and our adorable Cutie Lal Tamatar! 🥹🍅💖
+            </motion.p>
+
+            {/* Enter Button */}
+            <motion.div
+              style={{ width: '100%', maxWidth: 320 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <button className="btn-primary glow-pulse" onClick={handleEnter}>
+                <Gift style={{ width: 20, height: 20 }} />
+                Open Jaya&apos;s Secret World 💖
+              </button>
+              <p style={{ color: '#64748b', fontSize: '0.75rem', marginTop: 12 }}>
+                🎵 Tap to start background music
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── MAIN APP SHELL ── */}
+      {entered && (
+        <div className="app-shell">
+
+          {/* ── TOP HEADER ── */}
+          <header className="app-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <motion.span
+                style={{ fontSize: 26 }}
+                animate={{ rotate: [0, 15, -10, 0] }}
+                transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+              >🍅</motion.span>
+              <div>
+                <p className="font-head grad-text" style={{ fontSize: '1rem', fontWeight: 800, lineHeight: 1.1 }}>
+                  Jaya&apos;s 21st 🎂
+                </p>
+                <p style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: 600 }}>
+                  Cutie Lal Tamatar • Gori & Beautiful ✨
+                </p>
               </div>
             </div>
-
-            {/* NAV TABS */}
-            <nav className="flex items-center justify-center gap-2 overflow-x-auto max-w-full pb-2 md:pb-0">
-              <button 
-                onClick={() => setActiveTab('letter')} 
-                className={`nav-tab-3d ${activeTab === 'letter' ? 'active' : ''}`}
+            {/* Music mini-controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <button
+                onClick={() => { setPlaying(p => !p); playing ? audioRef.current?.pause() : audioRef.current?.play(); }}
+                style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,71,87,0.2)', border: '1px solid rgba(255,71,87,0.4)', color: '#ff758c', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                💌 Letter
+                {playing ? <Pause style={{ width: 15, height: 15 }} /> : <Play style={{ width: 15, height: 15 }} />}
               </button>
-              <button 
-                onClick={() => setActiveTab('photos')} 
-                className={`nav-tab-3d ${activeTab === 'photos' ? 'active' : ''}`}
+              <button
+                onClick={() => setMuted(m => !m)}
+                style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: muted ? '#ef4444' : '#22d3ee' }}
               >
-                📸 Photos ({IMAGES.length})
+                {muted ? <VolumeX style={{ width: 15, height: 15 }} /> : <Volume2 style={{ width: 15, height: 15 }} />}
               </button>
-              <button 
-                onClick={() => setActiveTab('videos')} 
-                className={`nav-tab-3d ${activeTab === 'videos' ? 'active' : ''}`}
-              >
-                🎥 23 Videos
-              </button>
-              <button 
-                onClick={() => setActiveTab('music')} 
-                className={`nav-tab-3d ${activeTab === 'music' ? 'active' : ''}`}
-              >
-                🎶 Music Lounge
-              </button>
-              <button 
-                onClick={() => setActiveTab('ai')} 
-                className={`nav-tab-3d ${activeTab === 'ai' ? 'active' : ''}`}
-              >
-                🤖 AI Hype Bot
-              </button>
-            </nav>
+            </div>
           </header>
 
-          {/* TAB 1: CENTERED 3D WAX-SEALED PAPER ENVELOPE */}
-          {activeTab === 'letter' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col items-center justify-center py-4 w-full text-center"
-            >
-              <div className="text-center mb-6">
-                <span className="tomato-badge-3d mb-2">💌 Sealed Birthday Note</span>
-                <h2 className="font-heading text-3xl font-bold gradient-text text-center">A Heartfelt Note for Jaya</h2>
-                <p className="text-slate-300 text-sm mt-1 text-center">Tap the 3D Wax Seal below to unfold your message!</p>
-              </div>
+          {/* Now playing strip */}
+          <div style={{ background: 'rgba(255,71,87,0.08)', borderBottom: '1px solid rgba(255,71,87,0.15)', padding: '6px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div className="spin-slow" style={{ width: 18, height: 18, borderRadius: '50%', background: 'conic-gradient(#ff4757, #00f2fe, #9b59b6, #ff4757)', flexShrink: 0 }} />
+            <p style={{ fontSize: '0.7rem', color: '#ff758c', fontWeight: 600, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+              ♪ {track.title} — {track.artist}
+            </p>
+          </div>
 
-              {/* REALISTIC 3D PARCHMENT ENVELOPE CARD */}
-              <div className="letter-envelope-card max-w-2xl w-full p-6 sm:p-10 text-center flex flex-col items-center justify-center">
-                
-                {/* WAX SEAL HEADER */}
-                <div className="flex flex-col items-center justify-center mb-6">
-                  <button 
-                    onClick={() => {
-                      setIsLetterUnfolded(!isLetterUnfolded);
-                      if (!isLetterUnfolded) triggerConfetti();
-                    }}
-                    className="wax-seal-btn mb-2"
-                    title="Tap to Unfold Letter"
-                  >
-                    <Heart className="w-8 h-8 fill-white" />
-                  </button>
-                  <span className="text-xs font-bold text-[#ffd700] tracking-wide text-center">
-                    {isLetterUnfolded ? 'TAP SEAL TO FOLD ✉️' : 'TAP WAX SEAL TO UNFOLD 💌'}
-                  </span>
+          {/* ── SCROLLABLE CONTENT ── */}
+          <main className="app-content">
+
+            {/* ═══ LETTER TAB ═══ */}
+            {tab === 'letter' && (
+              <motion.div
+                className="page-pad"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                  <span className="badge" style={{ marginBottom: 10, display: 'inline-flex' }}>💌 Sealed Birthday Note</span>
+                  <h2 className="section-title grad-text">A Heartfelt Note for Jaya</h2>
+                  <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: 6 }}>
+                    Tap the wax seal to unfold your letter!
+                  </p>
                 </div>
 
-                {/* UNFOLDING PAPER MESSAGE */}
-                <AnimatePresence>
-                  {isLetterUnfolded && (
-                    <motion.div 
-                      initial={{ opacity: 0, height: 0, scale: 0.95 }}
-                      animate={{ opacity: 1, height: 'auto', scale: 1 }}
-                      exit={{ opacity: 0, height: 0, scale: 0.95 }}
-                      transition={{ duration: 0.5 }}
-                      className="letter-paper-content text-center space-y-4 leading-relaxed w-full"
-                    >
-                      <h3 className="text-2xl sm:text-3xl font-extrabold gradient-text text-center mb-4">
-                        Happy 21st Birthday, Jaya! 🎉❤️
-                      </h3>
+                {/* Envelope Card */}
+                <div className="glass-card" style={{ padding: 24, marginBottom: 16, border: '1px solid rgba(255,117,140,0.3)' }}>
+                  {/* Wax Seal */}
+                  <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                    <button className="wax-seal" onClick={() => { setLetterOpen(p => !p); if (!letterOpen) boom(); }}>
+                      <Heart style={{ width: 28, height: 28, fill: 'white', color: 'white' }} />
+                    </button>
+                    <p style={{ fontSize: '0.7rem', fontWeight: 700, color: '#ffd700', marginTop: 8, letterSpacing: '0.05em' }}>
+                      {letterOpen ? 'TAP SEAL TO FOLD ✉️' : 'TAP WAX SEAL TO UNFOLD 💌'}
+                    </p>
+                  </div>
 
-                      <p className="text-slate-100 text-lg text-center">
-                        Happiest Birthday to my <span className="font-handwriting text-2xl text-[#ffd700] font-bold">Cutie, jaya, Lal Tamatar</span>. 🥹🍅
-                      </p>
-
-                      <p className="text-slate-200 text-center">
-                        Finally, you're 21! I hope this year brings you lots of happiness, success, good health, and all the things you've been wishing for. You truly deserve the best.
-                      </p>
-
-                      <div className="p-4 rounded-2xl bg-gradient-to-r from-pink-950/40 to-purple-950/40 border border-pink-500/30 italic text-pink-200 shadow-inner text-center">
-                        "Aur haan... ek baat bolun? You're really pretty. ✨ Tumhari chhoti si bindi aur tumhari aankhein... dono bahut sundar lagti hain."
-                      </div>
-
-                      <p className="font-bold text-[#00f2fe] text-lg sm:text-xl text-center">
-                        Aur please, ek baat hamesha yaad rakhna... you're not a brown girl 😂, you're gori, okay na!!! 😋
-                      </p>
-
-                      <p className="text-slate-200 text-center">
-                        Sach bolun toh tumse baat karke hamesha achha lagta hai. You're easy to talk to, and our conversations always leave a smile on my face.
-                      </p>
-
-                      <p className="text-slate-200 text-center">
-                        I genuinely hope yeh friendship hamesha aise hi bani rahe, with lots of laughs, random conversations, and good memories.
-                      </p>
-
-                      <p className="text-slate-200 text-center">
-                        Bas hamesha aise hi khush rehna, smile karte rehna, aur apna khayal rakhna. May this new chapter of your life be full of beautiful moments and unforgettable memories.
-                      </p>
-
-                      <div className="pt-6 border-t border-white/15 text-center">
-                        <p className="font-heading text-xl font-bold text-[#ff758c] text-center">
-                          Once again, Happy 21st Birthday, Jaya! 🎂🥳
-                        </p>
-                        <p className="text-sm text-slate-300 text-center">Enjoy your day to the fullest—you deserve it. ❤️✨</p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
-          )}
-
-          {/* TAB 2: HAND SWIPEABLE 3D PHOTO SLIDER */}
-          {activeTab === 'photos' && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="py-4 flex flex-col items-center w-full text-center"
-            >
-              <div className="text-center mb-6">
-                <span className="tomato-badge-3d mb-2">📸 Hand Swipeable 3D Photos</span>
-                <h2 className="font-heading text-3xl font-bold gradient-text text-center">Jaya's Photo Scrapbook</h2>
-                <p className="text-slate-300 text-sm mt-1 text-center flex items-center justify-center gap-1.5">
-                  <Hand className="w-4 h-4 text-[#ffd700] animate-bounce" /> Swipe left or right • Tap to expand
-                </p>
-              </div>
-
-              {/* PHONE-STYLE 9:16 PORTRAIT SLIDER */}
-              <div className="relative flex items-center justify-center mx-auto" style={{ width: '100%', maxWidth: '340px' }}>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={photoSliderIdx}
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    dragElastic={0.15}
-                    onDragEnd={handlePhotoDragEnd}
-                    initial={{ opacity: 0, x: 80, rotateY: 18 }}
-                    animate={{ opacity: 1, x: 0, rotateY: 0 }}
-                    exit={{ opacity: 0, x: -80, rotateY: -18 }}
-                    transition={{ type: 'spring', stiffness: 260, damping: 28 }}
-                    className="swipe-card-3d photo-slide-card w-full"
-                    style={{ aspectRatio: '9/16', maxHeight: '520px' }}
-                  >
-                    {/* Photo fills entire card */}
-                    <div
-                      className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl border-2 border-[#ff4757]/40"
-                      onClick={() => setActiveMedia({ type: 'image', src: IMAGES[photoSliderIdx].src, caption: IMAGES[photoSliderIdx].caption })}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img 
-                        src={IMAGES[photoSliderIdx].src} 
-                        alt="Photo Item" 
-                        className="w-full h-full object-cover pointer-events-none" 
-                      />
-                      {/* Gradient overlay at bottom */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/10" />
-                      {/* Tag top-left */}
-                      <div className="absolute top-4 left-4 bg-[#05020a]/80 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-[#ffd700] border border-[#ffd700]/30">
-                        {IMAGES[photoSliderIdx].tag}
-                      </div>
-                      {/* Counter top-right */}
-                      <div className="absolute top-4 right-4 bg-[#05020a]/80 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-white">
-                        {photoSliderIdx + 1}/{IMAGES.length}
-                      </div>
-                      {/* Caption bottom */}
-                      <div className="absolute bottom-0 left-0 right-0 p-5 text-center">
-                        <p className="text-sm font-semibold text-white leading-relaxed drop-shadow-lg">
-                          &ldquo;{IMAGES[photoSliderIdx].caption}&rdquo;
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-
-              {/* DOT INDICATORS */}
-              <div className="flex items-center justify-center gap-2 mt-5">
-                {IMAGES.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setPhotoSliderIdx(idx)}
-                    className="transition-all duration-300"
-                    style={{
-                      width: idx === photoSliderIdx ? '28px' : '10px',
-                      height: '10px',
-                      borderRadius: '5px',
-                      background: idx === photoSliderIdx
-                        ? 'linear-gradient(90deg, #ff4757, #ff758c)'
-                        : 'rgba(255,255,255,0.25)',
-                      border: 'none',
-                      cursor: 'pointer',
-                    }}
-                  />
-                ))}
-              </div>
-              <p className="text-xs text-slate-400 mt-2">Tap photo to expand fullscreen ✨</p>
-            </motion.div>
-          )}
-
-          {/* TAB 3: HAND SWIPEABLE 3D VIDEO SLIDESHOW (23 VIDEOS) */}
-          {activeTab === 'videos' && (
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="py-4 flex flex-col items-center w-full text-center"
-            >
-              <div className="text-center mb-6">
-                <span className="tomato-badge-3d mb-2">🎥 Hand Swipeable Video Reels</span>
-                <h2 className="font-heading text-3xl font-bold gradient-text text-center">23 Cutie Video Moments</h2>
-                <p className="text-slate-300 text-sm mt-1 text-center flex items-center justify-center gap-1.5">
-                  <Hand className="w-4 h-4 text-[#ff758c] animate-bounce" /> Swipe left or right • Tap to watch fullscreen
-                </p>
-              </div>
-
-              {/* 16:9 WIDESCREEN VIDEO SLIDE */}
-              <div className="relative w-full mx-auto" style={{ maxWidth: '560px' }}>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={videoSliderIdx}
-                    drag="x"
-                    dragConstraints={{ left: 0, right: 0 }}
-                    dragElastic={0.15}
-                    onDragEnd={handleVideoDragEnd}
-                    initial={{ opacity: 0, x: 80, scale: 0.96 }}
-                    animate={{ opacity: 1, x: 0, scale: 1 }}
-                    exit={{ opacity: 0, x: -80, scale: 0.96 }}
-                    transition={{ type: 'spring', stiffness: 260, damping: 28 }}
-                    className="swipe-card-3d video-slide-card w-full"
-                  >
-                    {/* 16:9 video container */}
-                    <div
-                      className="relative w-full rounded-2xl overflow-hidden shadow-2xl border-2 border-[#ff4757]/40 bg-black"
-                      style={{ aspectRatio: '16/9' }}
-                      onClick={() => setActiveMedia({ type: 'video', src: VIDEOS[videoSliderIdx].src, title: VIDEOS[videoSliderIdx].title, caption: VIDEOS[videoSliderIdx].quote })}
-                    >
-                      <video 
-                        src={VIDEOS[videoSliderIdx].src} 
-                        autoPlay 
-                        muted 
-                        loop 
-                        playsInline
-                        className="w-full h-full object-cover pointer-events-none" 
-                      />
-                      {/* Gradient overlays */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
-                      {/* Tag top-left */}
-                      <div className="absolute top-3 left-3 bg-[#05020a]/85 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-[#ff758c] border border-[#ff758c]/30">
-                        {VIDEOS[videoSliderIdx].tag}
-                      </div>
-                      {/* Counter top-right */}
-                      <div className="absolute top-3 right-3 bg-[#05020a]/85 backdrop-blur-md px-3 py-1.5 rounded-full text-xs font-bold text-white">
-                        {videoSliderIdx + 1}/{VIDEOS.length}
-                      </div>
-                      {/* Play button center */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-14 h-14 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center border border-white/50 shadow-lg">
-                          <Play className="w-7 h-7 text-white fill-white ml-1" />
+                  {/* Letter Content */}
+                  <AnimatePresence>
+                    {letterOpen && (
+                      <motion.div
+                        className="letter-paper"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.45 }}
+                        style={{ overflow: 'hidden' }}
+                      >
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, textAlign: 'center' }}>
+                          <h3 className="font-head grad-text" style={{ fontSize: '1.4rem', fontWeight: 800 }}>
+                            Happy 21st Birthday, Jaya! 🎉❤️
+                          </h3>
+                          <p style={{ color: '#e2e8f0', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                            Happiest Birthday to my{' '}
+                            <span className="font-hand" style={{ fontSize: '1.3rem', color: '#ffd700', fontWeight: 700 }}>
+                              Cutie, Jaya, Lal Tamatar
+                            </span>
+                            . 🥹🍅
+                          </p>
+                          <p style={{ color: '#cbd5e1', fontSize: '0.88rem', lineHeight: 1.7 }}>
+                            Finally, you&apos;re 21! I hope this year brings you lots of happiness, success, good health, and all the things you&apos;ve been wishing for. You truly deserve the best.
+                          </p>
+                          <div style={{ background: 'rgba(236,72,153,0.1)', border: '1px solid rgba(236,72,153,0.25)', borderRadius: 16, padding: 16 }}>
+                            <p style={{ color: '#f9a8d4', fontStyle: 'italic', fontSize: '0.88rem', lineHeight: 1.7 }}>
+                              &ldquo;Aur haan... ek baat bolun? You&apos;re really pretty. ✨ Tumhari chhoti si bindi aur tumhari aankhein... dono bahut sundar lagti hain.&rdquo;
+                            </p>
+                          </div>
+                          <p style={{ color: '#7dd3fc', fontWeight: 700, fontSize: '0.9rem', lineHeight: 1.6 }}>
+                            Aur please, ek baat hamesha yaad rakhna... you&apos;re not a brown girl 😂, you&apos;re gori, okay na!!! 😋
+                          </p>
+                          <p style={{ color: '#cbd5e1', fontSize: '0.88rem', lineHeight: 1.7 }}>
+                            Sach bolun toh tumse baat karke hamesha achha lagta hai. You&apos;re easy to talk to, and our conversations always leave a smile on my face.
+                          </p>
+                          <p style={{ color: '#cbd5e1', fontSize: '0.88rem', lineHeight: 1.7 }}>
+                            I genuinely hope yeh friendship hamesha aise hi bani rahe, with lots of laughs, random conversations, and good memories.
+                          </p>
+                          <p style={{ color: '#cbd5e1', fontSize: '0.88rem', lineHeight: 1.7 }}>
+                            Bas hamesha aise hi khush rehna, smile karte rehna, aur apna khayal rakhna. May this new chapter be full of beautiful moments and unforgettable memories.
+                          </p>
+                          <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 16 }}>
+                            <p className="font-head" style={{ color: '#ff758c', fontWeight: 700, fontSize: '1.1rem' }}>
+                              Once again, Happy 21st Birthday, Jaya! 🎂🥳
+                            </p>
+                            <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginTop: 4 }}>
+                              Enjoy your day to the fullest — you deserve it. ❤️✨
+                            </p>
+                          </div>
                         </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══ PHOTOS TAB ═══ */}
+            {tab === 'photos' && (
+              <motion.div
+                className="page-pad"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                  <span className="badge" style={{ marginBottom: 10, display: 'inline-flex' }}>📸 Swipeable Gallery</span>
+                  <h2 className="section-title grad-text">Jaya&apos;s Photo Scrapbook</h2>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 6, color: '#94a3b8', fontSize: '0.75rem' }}>
+                    <Hand style={{ width: 14, height: 14, color: '#ffd700' }} />
+                    Swipe left or right • Tap to expand
+                  </div>
+                </div>
+
+                {/* Portrait Photo Card */}
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
+                  <div style={{ width: '100%', maxWidth: 300 }}>
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={photoIdx}
+                        className="photo-card"
+                        drag="x"
+                        dragConstraints={{ left: 0, right: 0 }}
+                        dragElastic={0.12}
+                        onDragEnd={onPhotoDrag}
+                        initial={{ opacity: 0, x: 60 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -60 }}
+                        transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+                        onClick={() => setLightbox({ type: 'image', src: IMAGES[photoIdx].src, caption: IMAGES[photoIdx].caption })}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={IMAGES[photoIdx].src} alt="Jaya" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }} />
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, transparent 45%, rgba(0,0,0,0.1) 100%)' }} />
+                        {/* Tag */}
+                        <div style={{ position: 'absolute', top: 14, left: 14, background: 'rgba(5,2,10,0.8)', backdropFilter: 'blur(8px)', padding: '5px 12px', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, color: '#ffd700', border: '1px solid rgba(255,215,0,0.3)' }}>
+                          {IMAGES[photoIdx].tag}
+                        </div>
+                        {/* Counter */}
+                        <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(5,2,10,0.8)', backdropFilter: 'blur(8px)', padding: '5px 10px', borderRadius: 50, fontSize: '0.7rem', fontWeight: 700, color: 'white' }}>
+                          {photoIdx + 1}/{IMAGES.length}
+                        </div>
+                        {/* Caption */}
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 14px' }}>
+                          <p style={{ fontSize: '0.8rem', color: 'white', fontWeight: 600, lineHeight: 1.5, textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>
+                            &ldquo;{IMAGES[photoIdx].caption}&rdquo;
+                          </p>
+                        </div>
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+                </div>
+
+                {/* Dots */}
+                <Dots total={IMAGES.length} current={photoIdx} onSelect={setPhotoIdx} />
+                <p style={{ textAlign: 'center', color: '#475569', fontSize: '0.7rem', marginTop: 10 }}>Tap photo to expand fullscreen ✨</p>
+              </motion.div>
+            )}
+
+            {/* ═══ VIDEOS TAB ═══ */}
+            {tab === 'videos' && (
+              <motion.div
+                className="page-pad"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                  <span className="badge" style={{ marginBottom: 10, display: 'inline-flex' }}>🎥 Video Slideshow</span>
+                  <h2 className="section-title grad-text">23 Cutie Moments</h2>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 6, color: '#94a3b8', fontSize: '0.75rem' }}>
+                    <Hand style={{ width: 14, height: 14, color: '#ff758c' }} />
+                    Swipe left or right • Tap to watch
+                  </div>
+                </div>
+
+                {/* 16:9 Video Card */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={videoIdx}
+                    className="video-card"
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={0.12}
+                    onDragEnd={onVideoDrag}
+                    initial={{ opacity: 0, x: 60 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -60 }}
+                    transition={{ type: 'spring', stiffness: 280, damping: 30 }}
+                    onClick={() => setLightbox({ type: 'video', src: VIDEOS[videoIdx].src, title: VIDEOS[videoIdx].title, caption: VIDEOS[videoIdx].quote })}
+                    style={{ marginBottom: 16 }}
+                  >
+                    <video src={VIDEOS[videoIdx].src} autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 40%, rgba(0,0,0,0.15) 100%)' }} />
+                    {/* Tag */}
+                    <div style={{ position: 'absolute', top: 12, left: 12, background: 'rgba(5,2,10,0.85)', backdropFilter: 'blur(8px)', padding: '4px 10px', borderRadius: 50, fontSize: '0.65rem', fontWeight: 700, color: '#ff758c', border: '1px solid rgba(255,117,140,0.3)' }}>
+                      {VIDEOS[videoIdx].tag}
+                    </div>
+                    {/* Counter */}
+                    <div style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(5,2,10,0.85)', backdropFilter: 'blur(8px)', padding: '4px 10px', borderRadius: 50, fontSize: '0.65rem', fontWeight: 700, color: 'white' }}>
+                      {videoIdx + 1}/{VIDEOS.length}
+                    </div>
+                    {/* Play icon */}
+                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)', border: '1.5px solid rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Play style={{ width: 22, height: 22, color: 'white', fill: 'white', marginLeft: 3 }} />
                       </div>
-                      {/* Title bottom */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4 text-center">
-                        <h4 className="font-bold text-white text-base drop-shadow-lg">{VIDEOS[videoSliderIdx].title}</h4>
-                        <p className="text-xs text-slate-200 italic mt-0.5 drop-shadow-lg">&ldquo;{VIDEOS[videoSliderIdx].quote}&rdquo;</p>
-                      </div>
+                    </div>
+                    {/* Bottom info */}
+                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '12px 14px' }}>
+                      <p style={{ fontWeight: 700, color: 'white', fontSize: '0.85rem', textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>{VIDEOS[videoIdx].title}</p>
+                      <p style={{ color: '#e2e8f0', fontSize: '0.72rem', fontStyle: 'italic', marginTop: 2, textShadow: '0 1px 6px rgba(0,0,0,0.8)' }}>&ldquo;{VIDEOS[videoIdx].quote}&rdquo;</p>
                     </div>
                   </motion.div>
                 </AnimatePresence>
-              </div>
 
-              {/* DOT INDICATORS — show grouped dots for 23 videos */}
-              <div className="flex items-center justify-center gap-1.5 mt-5 flex-wrap max-w-xs mx-auto">
-                {VIDEOS.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setVideoSliderIdx(idx)}
-                    className="transition-all duration-300"
-                    style={{
-                      width: idx === videoSliderIdx ? '20px' : '7px',
-                      height: '7px',
-                      borderRadius: '4px',
-                      background: idx === videoSliderIdx
-                        ? 'linear-gradient(90deg, #ff4757, #ff758c)'
-                        : 'rgba(255,255,255,0.22)',
-                      border: 'none',
-                      cursor: 'pointer',
-                    }}
-                  />
-                ))}
-              </div>
-              <p className="text-xs text-slate-400 mt-2">Tap video to watch fullscreen 🎬</p>
-            </motion.div>
-          )}
+                {/* Dots */}
+                <Dots total={VIDEOS.length} current={videoIdx} onSelect={setVideoIdx} small />
+                <p style={{ textAlign: 'center', color: '#475569', fontSize: '0.7rem', marginTop: 10 }}>Tap video to watch fullscreen 🎬</p>
+              </motion.div>
+            )}
 
-          {/* TAB 4: BEAUTIFULLY MANAGED MUSIC LIBRARY */}
-          {activeTab === 'music' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="py-4 w-full text-center"
-            >
-              <div className="text-center mb-8">
-                <span className="tomato-badge-3d mb-2">🎶 Music Library</span>
-                <h2 className="font-heading text-3xl font-bold gradient-text text-center">Jaya's Song Collection</h2>
-                <p className="text-slate-300 text-sm mt-1 text-center">Tap any song to play instantly or let the continuous playlist auto-advance!</p>
-              </div>
+            {/* ═══ MUSIC TAB ═══ */}
+            {tab === 'music' && (
+              <motion.div
+                className="page-pad"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div style={{ textAlign: 'center', marginBottom: 20 }}>
+                  <span className="badge" style={{ marginBottom: 10, display: 'inline-flex' }}>🎶 Music Lounge</span>
+                  <h2 className="section-title grad-text">Jaya&apos;s Song Collection</h2>
+                </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
-                {/* VINYL PLAYER CARD */}
-                <div className="card-3d p-6 md:col-span-1 flex flex-col items-center justify-center text-center border-2 border-[#ff4757]/40">
-                  <div className="w-40 h-40 rounded-full bg-gradient-to-tr from-[#ff4757] via-[#00f2fe] to-[#9b59b6] p-1.5 animate-glow-3d mb-6">
-                    <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center">
-                      <Disc className="w-20 h-20 text-[#ff758c] animate-spin" style={{ animationDuration: '8s' }} />
+                {/* Vinyl Player */}
+                <div className="glass-card" style={{ padding: 24, marginBottom: 16, textAlign: 'center', border: '1px solid rgba(255,71,87,0.25)' }}>
+                  <div className={`vinyl ${playing ? 'spin-slow' : ''}`} style={{ marginBottom: 16 }}>
+                    <div className="vinyl-inner">
+                      <Disc style={{ width: 48, height: 48, color: '#ff758c' }} />
                     </div>
                   </div>
+                  <p className="font-head" style={{ fontSize: '1.1rem', fontWeight: 700, color: 'white', marginBottom: 2 }}>{track.title}</p>
+                  <p style={{ color: '#94a3b8', fontSize: '0.8rem', marginBottom: 20 }}>{track.artist}</p>
 
-                  <h3 className="font-heading text-2xl font-bold text-white mb-1 text-center">
-                    {currentTrack.title}
-                  </h3>
-                  <p className="text-sm text-slate-300 mb-6 text-center">{currentTrack.artist}</p>
-
-                  <div className="flex items-center justify-center gap-4 mb-6">
-                    <button onClick={prevTrack} className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white">
-                      <ChevronLeft className="w-5 h-5" />
+                  {/* Controls */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginBottom: 20 }}>
+                    <button onClick={prevTrack} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <ChevronLeft style={{ width: 20, height: 20 }} />
                     </button>
-                    <button 
-                      onClick={() => {
-                        setIsPlaying(!isPlaying);
-                        if (audioRef.current) {
-                          isPlaying ? audioRef.current.pause() : audioRef.current.play();
-                        }
-                      }} 
-                      className="btn-3d-primary py-3 px-8 text-lg"
+                    <button
+                      onClick={() => { setPlaying(p => !p); playing ? audioRef.current?.pause() : audioRef.current?.play(); }}
+                      style={{ width: 60, height: 60, borderRadius: '50%', background: 'linear-gradient(135deg, #ff4757, #ff758c)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(255,71,87,0.45)' }}
                     >
-                      {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
+                      {playing ? <Pause style={{ width: 24, height: 24, fill: 'white' }} /> : <Play style={{ width: 24, height: 24, fill: 'white', marginLeft: 3 }} />}
                     </button>
-                    <button onClick={nextTrack} className="p-3 rounded-full bg-white/10 hover:bg-white/20 text-white">
-                      <ChevronRight className="w-5 h-5" />
+                    <button onClick={nextTrack} style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <ChevronRight style={{ width: 20, height: 20 }} />
                     </button>
                   </div>
 
-                  {currentTrack.type === 'yt' && (
-                    <div className="w-full aspect-video rounded-2xl overflow-hidden border border-white/15">
+                  {/* YouTube embed */}
+                  {track.type === 'yt' && (
+                    <div style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid rgba(255,255,255,0.1)', aspectRatio: '16/9' }}>
                       <iframe
-                        className="w-full h-full"
-                        src={`https://www.youtube.com/embed/${currentTrack.ytId}?autoplay=1`}
-                        title={currentTrack.title}
+                        style={{ width: '100%', height: '100%' }}
+                        src={`https://www.youtube.com/embed/${track.ytId}?autoplay=1`}
+                        title={track.title}
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       />
@@ -610,233 +561,161 @@ export default function CenteredSwipeableBirthdayApp() {
                   )}
                 </div>
 
-                {/* PLAYLIST JUKEBOX */}
-                <div className="card-3d p-6 md:col-span-2 flex flex-col justify-between items-center text-center">
-                  <div className="w-full">
-                    <h3 className="font-heading text-xl font-bold text-white mb-4 flex items-center justify-center gap-2">
-                      <Sparkles className="w-5 h-5 text-[#ffd700]" /> Managed Playlist Tracks
-                    </h3>
-
-                    <div className="space-y-3 w-full">
-                      {MUSIC_PLAYLIST.map((track, idx) => (
-                        <div 
-                          key={track.id}
-                          onClick={() => playTrackAtIndex(idx)}
-                          className={`p-4 rounded-2xl border transition-all cursor-pointer flex items-center justify-between ${
-                            currentTrackIndex === idx 
-                              ? 'bg-[#ff4757]/20 border-[#ff4757] text-white shadow-xl' 
-                              : 'bg-white/5 border-white/10 hover:bg-white/10 text-slate-300'
-                          }`}
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-extrabold ${currentTrackIndex === idx ? 'bg-[#ff4757] text-white' : 'bg-white/10'}`}>
-                              {idx + 1}
-                            </div>
-                            <div className="text-left">
-                              <h4 className="font-bold text-base">{track.title}</h4>
-                              <p className="text-xs text-slate-400">{track.artist}</p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs px-3 py-1 rounded-full bg-white/10 border border-white/15">
-                              {track.type === 'local' ? 'Local Audio 🎵' : 'YouTube Stream 📺'}
-                            </span>
-                            {currentTrackIndex === idx && (
-                              <div className="flex gap-1 items-end h-5">
-                                <span className="audio-bar" style={{ animationDelay: '0s' }} />
-                                <span className="audio-bar" style={{ animationDelay: '0.2s' }} />
-                                <span className="audio-bar" style={{ animationDelay: '0.4s' }} />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                {/* Playlist */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {PLAYLIST.map((t, i) => (
+                    <button key={t.id} className={`track-row ${trackIdx === i ? 'playing' : ''}`} onClick={() => playAt(i)}>
+                      <div style={{ width: 36, height: 36, borderRadius: '50%', background: trackIdx === i ? 'linear-gradient(135deg,#ff4757,#ff758c)' : 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: '0.75rem', fontWeight: 800, color: 'white' }}>
+                        {trackIdx === i
+                          ? <div className="audio-bars">{[0, 0.2, 0.4].map((d, j) => <span key={j} className="audio-bar" style={{ animationDelay: `${d}s` }} />)}</div>
+                          : i + 1
+                        }
+                      </div>
+                      <div style={{ flex: 1, textAlign: 'left', overflow: 'hidden' }}>
+                        <p style={{ fontWeight: 700, fontSize: '0.9rem', color: trackIdx === i ? 'white' : '#e2e8f0', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{t.title}</p>
+                        <p style={{ fontSize: '0.72rem', color: '#64748b', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>{t.artist}</p>
+                      </div>
+                      <span style={{ fontSize: '0.65rem', color: '#475569', background: 'rgba(255,255,255,0.06)', padding: '3px 8px', borderRadius: 50, flexShrink: 0 }}>
+                        {t.type === 'local' ? '🎵 Local' : '▶️ YT'}
+                      </span>
+                    </button>
+                  ))}
                 </div>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            )}
 
-          {/* TAB 5: AI HYPE BOT */}
-          {activeTab === 'ai' && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="py-4 max-w-3xl w-full mx-auto text-center"
-            >
-              <div className="text-center mb-8">
-                <span className="tomato-badge-3d mb-2">🤖 Holographic AI Bot</span>
-                <h2 className="font-heading text-3xl font-bold gradient-text text-center">Jaya's Personal Hype Bot</h2>
-                <p className="text-slate-300 text-sm mt-1 text-center">Real-time compliments crafted for our Cutie Lal Tamatar 🍅</p>
-              </div>
+            {/* ═══ AI BOT TAB ═══ */}
+            {tab === 'ai' && (
+              <motion.div
+                className="page-pad"
+                style={{ display: 'flex', flexDirection: 'column', minHeight: '70dvh' }}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                  <span className="badge" style={{ marginBottom: 10, display: 'inline-flex' }}>🤖 AI Hype Bot</span>
+                  <h2 className="section-title grad-text">Jaya&apos;s Hype Bot</h2>
+                  <p style={{ color: '#94a3b8', fontSize: '0.75rem', marginTop: 4 }}>Real-time compliments for our Cutie Lal Tamatar 🍅</p>
+                </div>
 
-              <div className="card-3d p-6 min-h-[480px] flex flex-col justify-between items-center border-2 border-[#00f2fe]/40 w-full">
-                <div className="space-y-4 mb-6 max-h-[360px] overflow-y-auto pr-2 w-full">
-                  {aiChat.map((msg, idx) => (
-                    <div 
-                      key={idx}
-                      className={`flex gap-3 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      {msg.sender === 'bot' && (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#ff4757] via-[#00f2fe] to-[#9b59b6] flex items-center justify-center text-white shrink-0 shadow-lg">
-                          <Bot className="w-5 h-5" />
+                {/* Chat */}
+                <div className="glass-card" style={{ flex: 1, padding: 16, marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 12, overflowY: 'auto', maxHeight: '38dvh', border: '1px solid rgba(0,242,254,0.2)' }}>
+                  {aiChat.map((msg, i) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: msg.from === 'user' ? 'flex-end' : 'flex-start', gap: 8, alignItems: 'flex-end' }}>
+                      {msg.from === 'bot' && (
+                        <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg,#ff4757,#00f2fe)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <Bot style={{ width: 14, height: 14, color: 'white' }} />
                         </div>
                       )}
-
-                      <div className={`max-w-md p-4 rounded-2xl text-sm leading-relaxed ${
-                        msg.sender === 'user'
-                          ? 'bg-gradient-to-r from-[#ff4757] to-[#ff758c] text-white rounded-br-none shadow-lg font-medium text-left'
-                          : 'bg-white/10 border border-white/15 text-slate-100 rounded-bl-none text-left'
-                      }`}>
-                        {msg.text}
-                      </div>
+                      <div className={msg.from === 'bot' ? 'chat-bubble-bot' : 'chat-bubble-user'}>{msg.text}</div>
                     </div>
                   ))}
-
-                  {isAiLoading && (
-                    <div className="flex gap-3 justify-start items-center text-slate-400 text-sm italic">
-                      <Bot className="w-5 h-5 animate-spin text-[#00f2fe]" />
-                      Generating custom sweetness...
+                  {aiLoading && (
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center', color: '#64748b', fontSize: '0.78rem' }}>
+                      <Bot style={{ width: 14, height: 14, color: '#00f2fe' }} />
+                      <span style={{ fontStyle: 'italic' }}>Generating sweetness...</span>
                     </div>
                   )}
+                  <div ref={chatEndRef} />
                 </div>
 
-                <div className="flex flex-wrap gap-2 mb-4 justify-center">
-                  <button 
-                    onClick={() => fetchAiCompliment('bindi')}
-                    className="btn-3d-primary py-2 px-4 text-xs font-semibold"
-                  >
-                    ✨ Bindi & Eyes
-                  </button>
-                  <button 
-                    onClick={() => fetchAiCompliment('tomato')}
-                    className="btn-3d-primary py-2 px-4 text-xs font-semibold"
-                  >
-                    🍅 Lal Tamatar Vibe
-                  </button>
-                  <button 
-                    onClick={() => fetchAiCompliment('gori')}
-                    className="btn-3d-primary py-2 px-4 text-xs font-semibold"
-                  >
-                    😋 Gori Girl Truth
-                  </button>
-                  <button 
-                    onClick={() => fetchAiCompliment('general')}
-                    className="btn-3d-primary py-2 px-4 text-xs font-semibold"
-                  >
-                    🎂 21st Wish
-                  </button>
+                {/* Quick Prompts */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
+                  {[
+                    { label: '✨ Bindi & Eyes', cat: 'bindi' },
+                    { label: '🍅 Lal Tamatar', cat: 'tomato' },
+                    { label: '😋 Gori Girl', cat: 'gori' },
+                    { label: '🎂 21st Wish', cat: 'general' },
+                  ].map(({ label, cat }) => (
+                    <button
+                      key={cat}
+                      onClick={() => askAi(cat)}
+                      style={{ padding: '10px 8px', borderRadius: 14, background: 'rgba(255,71,87,0.12)', border: '1px solid rgba(255,71,87,0.3)', color: '#ff758c', fontSize: '0.78rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
+                    >
+                      {label}
+                    </button>
+                  ))}
                 </div>
 
-                <form 
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (aiInput.trim()) {
-                      fetchAiCompliment(undefined, aiInput.trim());
-                      setAiInput('');
-                    }
-                  }}
-                  className="flex gap-2 w-full"
+                {/* Input */}
+                <form
+                  onSubmit={e => { e.preventDefault(); if (aiInput.trim()) { askAi(undefined, aiInput.trim()); setAiInput(''); } }}
+                  style={{ display: 'flex', gap: 8 }}
                 >
-                  <input 
+                  <input
                     type="text"
                     value={aiInput}
-                    onChange={(e) => setAiInput(e.target.value)}
+                    onChange={e => setAiInput(e.target.value)}
                     placeholder="Ask the AI for a sweet compliment..."
-                    className="flex-grow bg-white/10 border border-white/20 rounded-full px-5 py-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:border-[#00f2fe] text-center"
+                    style={{ flex: 1, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 50, padding: '12px 18px', fontSize: '0.85rem', color: 'white', outline: 'none' }}
                   />
-                  <button type="submit" className="btn-3d-primary py-3 px-6 text-sm">
-                    <Send className="w-4 h-4" />
+                  <button
+                    type="submit"
+                    style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg,#ff4757,#ff758c)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 4px 16px rgba(255,71,87,0.4)' }}
+                  >
+                    <Send style={{ width: 18, height: 18 }} />
                   </button>
                 </form>
-              </div>
-            </motion.div>
-          )}
-
-          {/* LIGHTBOX MODAL */}
-          {activeMedia && (
-            <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
-              <motion.div 
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                className="relative max-w-4xl w-full card-3d p-4 flex flex-col items-center border-2 border-white/30"
-              >
-                <button 
-                  onClick={() => setActiveMedia(null)}
-                  className="absolute top-4 right-4 p-3 rounded-full bg-white/20 hover:bg-white/40 text-white transition-all z-10"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-
-                {activeMedia.type === 'image' ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img 
-                    src={activeMedia.src} 
-                    alt="Enlarged Photo" 
-                    className="max-h-[75vh] w-auto object-contain rounded-xl"
-                  />
-                ) : (
-                  <video 
-                    src={activeMedia.src} 
-                    controls 
-                    autoPlay 
-                    className="max-h-[75vh] w-auto rounded-xl"
-                  />
-                )}
-
-                {(activeMedia.caption || activeMedia.title) && (
-                  <div className="mt-4 text-center">
-                    {activeMedia.title && <h3 className="font-bold text-lg text-white mb-1 text-center">{activeMedia.title}</h3>}
-                    {activeMedia.caption && <p className="text-slate-300 italic text-sm text-center">"{activeMedia.caption}"</p>}
-                  </div>
-                )}
               </motion.div>
-            </div>
-          )}
+            )}
+          </main>
 
-          {/* PERSISTENT FLOATING MUSIC PLAYER BAR */}
-          <div className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 max-w-xl w-[92%] glass-panel-3d p-3 px-5 flex items-center justify-between border-2 border-[#ff4757]/40 shadow-2xl">
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#ff4757] to-[#00f2fe] flex items-center justify-center shrink-0 animate-spin" style={{ animationDuration: '10s' }}>
-                <Music className="w-5 h-5 text-white" />
-              </div>
-              <div className="overflow-hidden text-left">
-                <p className="font-bold text-sm text-white truncate">{currentTrack.title}</p>
-                <p className="text-xs text-slate-300 truncate">{currentTrack.artist}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3 shrink-0">
-              <button onClick={prevTrack} className="p-2 text-white hover:text-[#ff758c]">
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <button 
-                onClick={() => {
-                  setIsPlaying(!isPlaying);
-                  if (audioRef.current) {
-                    isPlaying ? audioRef.current.pause() : audioRef.current.play();
-                  }
-                }}
-                className="p-2.5 rounded-full bg-[#ff4757] text-white hover:scale-105 transition-transform"
+          {/* ── BOTTOM NAV ── */}
+          <nav className="bottom-nav">
+            {TABS.map(t => (
+              <button
+                key={t.key}
+                className={`nav-btn ${tab === t.key ? 'active' : ''}`}
+                onClick={() => setTab(t.key)}
               >
-                {isPlaying ? <Pause className="w-4 h-4 fill-white" /> : <Play className="w-4 h-4 fill-white" />}
+                <span className="nav-icon">{t.emoji}</span>
+                <span className="nav-label">{t.label}</span>
               </button>
-              <button onClick={nextTrack} className="p-2 text-white hover:text-[#ff758c]">
-                <ChevronRight className="w-5 h-5" />
-              </button>
-              <button 
-                onClick={() => setIsMuted(!isMuted)}
-                className="p-2 text-slate-300 hover:text-white"
-              >
-                {isMuted ? <VolumeX className="w-5 h-5 text-red-400" /> : <Volume2 className="w-5 h-5 text-emerald-400" />}
-              </button>
-            </div>
-          </div>
-
+            ))}
+          </nav>
         </div>
       )}
-    </div>
+
+      {/* ── LIGHTBOX ── */}
+      <AnimatePresence>
+        {lightbox && (
+          <motion.div
+            style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.95)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 16 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setLightbox(null)}
+          >
+            <button
+              onClick={() => setLightbox(null)}
+              style={{ position: 'absolute', top: 48, right: 20, width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}
+            >
+              <X style={{ width: 20, height: 20 }} />
+            </button>
+            <motion.div
+              initial={{ scale: 0.85 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.85 }}
+              onClick={e => e.stopPropagation()}
+              style={{ width: '100%', maxWidth: 480, maxHeight: '80dvh', borderRadius: 20, overflow: 'hidden' }}
+            >
+              {lightbox.type === 'image' ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={lightbox.src} alt="Expanded" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 20 }} />
+              ) : (
+                <video src={lightbox.src} controls autoPlay playsInline style={{ width: '100%', borderRadius: 20 }} />
+              )}
+            </motion.div>
+            {(lightbox.title || lightbox.caption) && (
+              <div style={{ textAlign: 'center', marginTop: 16, padding: '0 20px' }}>
+                {lightbox.title && <p style={{ fontWeight: 700, color: 'white', fontSize: '1rem' }}>{lightbox.title}</p>}
+                {lightbox.caption && <p style={{ color: '#94a3b8', fontStyle: 'italic', fontSize: '0.85rem', marginTop: 4 }}>&ldquo;{lightbox.caption}&rdquo;</p>}
+              </div>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
